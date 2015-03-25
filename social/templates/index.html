@@ -23,22 +23,23 @@
   </head>
   <body>
 
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default" ng-controller="UserCtrl">
         <div class="container">
-          <div class="col-lg-6 col-lg-offset-3">
+          <div class="col-lg-8 col-lg-offset-2">
             <div class="navbar-header">
-                <a class="navbar-brand" ng-href="#/">Gamr</a>
+                <span class="navbar-brand">Gamer</span>
             </div>
             <ul class="nav navbar-nav">
-{#              <li><a href="#/posts">Posts</a></li>#}
-{#              <li><a href="#/posts/new">New post</a></li>#}
+              <li><a href="#/feed">Feed</a></li>
+              <li><a href="#/discover">Discover</a></li>
+              <li><a href="#/groups">Groups</a></li>
             </ul>
-            <div class="pull-right navbar-form navbar-right" ng-controller="UserCtrl">
-              <div ng-show="user==='Guest'">
+            <div class="pull-right navbar-form navbar-right">
+              <div ng-hide="user">
                 <a href="" ng-href="#/login"><button class="btn btn-default">Login</button></a>
                 <a href="" ng-href="#/register"><button class="btn btn-default">Register</button></a>
               </div>
-              <div ng-hide="user==='Guest'">
+              <div ng-show="user" class="navbar-form">
                 <big><span ng-bind="user"></span> <i class="fa fa-user"></i></big>
                 <a href="" ng-href="#/logout"><button class="btn btn-default">Logout</button></a>
               </div>
@@ -65,20 +66,31 @@
 
     <script src="{% static "js/gamr.js" %}"></script>
     <script src="{% static "js/routes.js" %}"></script>
+    <script src="{% static "js/API.js" %}"></script>
 
-    <script src="{% static "User/validate.js" %}"></script>
-    <script src="{% static "User/djangoAuth.js" %}"></script>
-    <script src="{% static "User/login.js" %}"></script>
-    <script src="{% static "User/logout.js" %}"></script>
     <script src="{% static "User/register.js" %}"></script>
+    <script src="{% static "User/passwordreset.js" %}"></script>
+    <script src="{% static "User/passwordresetconfirm.js" %}"></script>
+    <script src="{% static "User/login.js" %}"></script>
+    <script src="{% static "User/verifyemail.js" %}"></script>
+    <script src="{% static "User/logout.js" %}"></script>
+    <script src="{% static "User/userprofile.js" %}"></script>
+    <script src="{% static "User/passwordchange.js" %}"></script>
+    <script src="{% static "User/djangoAuth.js" %}"></script>
+    <script src="{% static "User/validate.js" %}"></script>
+    <script src="{% static "User/master.js" %}"></script>
+    <script src="{% static "User/restricted.js" %}"></script>
+    <script src="{% static "User/authrequired.js" %}"></script>
 
-    <script src="{% static "User/UserFactory.js" %}"></script>
     <script src="{% static "User/UserCtrl.js" %}"></script>
 
-
-    <script src="{% static "Post/PostFactory.js" %}"></script>
-    <script src="{% static "Post/FeedCtrl.js" %}"></script>
-    <script src="{% static "Post/ViewCtrl.js" %}"></script>
+    <script src="{% static "Gamr/Home.js" %}"></script>
+    <script src="{% static "Gamr/Feed.js" %}"></script>
+    <script src="{% static "Gamr/Discover.js" %}"></script>
+    <script src="{% static "Gamr/Profile.js" %}"></script>
+    <script src="{% static "Gamr/Group.js" %}"></script>
+    <script src="{% static "Gamr/Post.js" %}"></script>
+    <script src="{% static "Gamr/MyGroups.js" %}"></script>
 
 </body>
 </html>

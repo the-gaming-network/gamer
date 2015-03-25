@@ -1,11 +1,9 @@
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from requests import Response
 from rest_framework import generics, filters
-from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from rest_auth.registration.views import SocialLogin
-from rest_framework.response import Response
 from social.permissions import IsOwnerOrReadOnly
 from social.api.serializers import *
 
@@ -14,36 +12,35 @@ class FacebookLogin(SocialLogin):
     adapter_class = FacebookOAuth2Adapter
 
 
-class RetrieveCurrentUser(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
+class RetrieveCurrentUser(generics.ListAPIView):
+    serializer_class = UserWithGroupsSerializer
 
-    def get(self, request, *args, **kwargs):
-        data = User.objects.filter(username=self.request.user)
-        return HttpResponse(data)
+    def get_queryset(self):
+        return User.objects.filter(username=self.request.user.username)
+
+class RetrieveUser(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserWithGroupsSerializer
 
 
-class RetrieveProfile(generics.RetrieveAPIView):
+class ListUser(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserWithGroupsSerializer
+
+
+class MakeProfile(generics.CreateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def perform_create(self, serializer):
+        serializer.save(owner = self.request.user)
 
 
-class ListProfile(generics.ListAPIView):
+class RetrieveUpdateProfile(generics.RetrieveUpdateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-
-
-@login_required()
-@api_view(['GET', 'POST'])
-def MyProfile(request):
-    if request.method == 'POST':
-        s = request.user.profile
-        s.bio = request.data['bio']
-        s.save()
-        return Response({'bio': request.data['bio']})
-        # request.query_params
-    else:
-        bio = request.user.profile.bio
-        return Response({'bio': bio})
+    permission_classes = (IsOwnerOrReadOnly,)
 
 
 class ListCreatePost(generics.ListCreateAPIView):
@@ -63,7 +60,7 @@ class RetrieveUpdateDestroyPost(generics.RetrieveUpdateDestroyAPIView):
 
 class CreateComment(generics.CreateAPIView):
     queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+    serializer_class = CreateCommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def perform_create(self, serializer):
@@ -73,6 +70,21 @@ class CreateComment(generics.CreateAPIView):
 class RetrieveUpdateDestroyComment(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
+
+
+class CreateLike(generics.CreateAPIView):
+    queryset = Like.objects.all()
+    serializer_class = CreateLikeSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def perform_create(self, serializer):
+        serializer.save(owner = self.request.user)
+
+
+class DeleteLike(generics.DestroyAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
     permission_classes = (IsOwnerOrReadOnly,)
 
 
@@ -87,9 +99,25 @@ class ListCreateGroup(generics.ListCreateAPIView):
         serializer.save(owner = self.request.user)
 
 
-
 class RetrieveUpdateDestroyGroup(generics.RetrieveUpdateDestroyAPIView):
     queryset = Group.objects.all()
     serializer_class = ViewGroupSerializer
     permission_classes = (IsOwnerOrReadOnly,)
 
+
+class CreateUserInGroup(generics.CreateAPIView):
+    queryset = UserInGroup.objects.all()
+    serializer_class = UserInGroupSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def perform_create(self, serializer):
+        serializer.save(owner = self.request.user)
+
+
+class GroupFeed(generics.ListAPIView):
+    serializer_class = ListPostSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        posts = Post.objects.filter(group__members = user)
+        return posts
